@@ -31,6 +31,7 @@ const createPlan = () => {
                 />
         <h1 className="text-4xl font-bold text-start text-black mb-6">Start Your Rice Farming Journey</h1>
         <p className="text-sm text-gray-600 text-justify mb-8">
+          hello
           To get started on your rice farming journey, the first step is to create a detailed planting plan. 
           This will help you organize your planting schedule, manage resources effectively, and ensure optimal growth. 
           Click the button below to begin your customized planting plan and set the foundation for a successful crop season.
