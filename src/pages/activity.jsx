@@ -5,7 +5,7 @@ import Sidebar from "../component/sidebar";
 
 
 
-const Analytics = () => {
+const Activity = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleSidebar = () => {
@@ -20,10 +20,10 @@ const Analytics = () => {
       
         {/* Main Content */}
       <main className="p-2 lg:ml-64 bg-gray-300">
-            <h1>Analytics</h1>
+            <h1>activity</h1>
       </main>
     </div>
   );
 };
 
-export default Analytics;
+export default Activity;

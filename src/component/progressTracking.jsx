@@ -1,0 +1,93 @@
+import React, { useState, useEffect } from "react";
+import { getFirestore, doc, getDoc } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
+import { db } from "../firebase";
+
+const ProgressTracking = () => {
+  const [progressData, setProgressData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchFarmingPlan = async () => {
+      setLoading(true);
+      const auth = getAuth();
+      const user = auth.currentUser;
+
+      if (!user) {
+        console.error("User not authenticated");
+        setLoading(false);
+        return;
+      }
+
+      const farmingPlanRef = doc(db, `users/${user.uid}/farmingPlans`, "Plan");
+      try {
+        const farmingPlanSnap = await getDoc(farmingPlanRef);
+        if (farmingPlanSnap.exists()) {
+          const data = farmingPlanSnap.data();
+
+          const { startDate, firstApplication, secondApplication } = data;
+
+          // Convert dates to Date objects
+          const start = new Date(startDate);
+          const firstFert = new Date(firstApplication);
+          const secondFert = new Date(secondApplication);
+
+          // Define farming stages
+          const stages = [
+            { name: "Vegetative Stage", date: start },
+            { name: "First Fertilizer Application", date: firstFert },
+            { name: "Reproductive Stage", date: new Date(start.getTime() + 45 * 86400000) },
+            { name: "Second Fertilizer Application", date: secondFert },
+            { name: "Ripening Stage", date: new Date(start.getTime() + 80 * 86400000) },
+            { name: "Harvest", date: new Date(start.getTime() + 110 * 86400000) },
+          ];
+
+          setProgressData(stages);
+        } else {
+          console.error("No farming plan found!");
+        }
+      } catch (error) {
+        console.error("Error fetching farming plan:", error);
+      }
+      setLoading(false);
+    };
+
+    fetchFarmingPlan();
+  }, []);
+
+  const currentDate = new Date();
+
+  return (
+    <div className="p-2">
+      <h1 className="text-xl font-bold mb-4">Rice Farming Progress</h1>
+
+      {loading ? (
+        <p>Loading...</p>
+      ) : (
+        <div className="space-y-4">
+          {progressData.map((stage, index) => {
+            const isCompleted = currentDate >= stage.date;
+
+            return (
+              <div key={index} className="flex items-center  space-x-4">
+                {/* Progress Indicator */}
+                <div
+                  className={`w-3 h-3 rounded-full ${
+                    isCompleted ? "bg-green-500" : "bg-gray-400"
+                  }`}
+                ></div>
+
+                {/* Stage Name */}
+                <p className={`text-sm ${isCompleted ? "text-green-600" : "text-gray-600"}`}>
+                  {stage.name} - {stage.date.toDateString()}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default ProgressTracking;

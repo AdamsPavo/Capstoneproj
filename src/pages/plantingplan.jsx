@@ -22,15 +22,15 @@ const createPlan = () => {
       {/* Main Content */}
       <main className="p-2 lg:ml-64">
        
-      <div className="flex flex-col items-center justify-center h-screen w-full bg-gray-50 p-4">
+      <div className="flex flex-col items-center justify-center w-full bg-gray-50 p-4">
 
         <img
                   src={logo}
                   alt="P-Tubigan Logo"
-                  className="w-[150px] h-[150px] md:w-200 md:h-200"
+                  className="w-[200px] h-[200px] md:w-[400px] md:h-[400px]"
                 />
-        <h1 className="text-4xl font-bold text-start text-black mb-6">Start Your Rice Farming Journey</h1>
-        <p className="text-sm text-gray-600 text-justify mb-8">
+        <h1 className="text-4xl font-bold text-start justify-center text-black mb-6">Start Your Rice Farming Journey</h1>
+        <p className="text-md text-gray-600 text-justify mb-8">
           hello
           To get started on your rice farming journey, the first step is to create a detailed planting plan. 
           This will help you organize your planting schedule, manage resources effectively, and ensure optimal growth. 

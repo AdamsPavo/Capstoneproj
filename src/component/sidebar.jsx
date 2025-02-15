@@ -1,4 +1,5 @@
 import React from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import logo from "../assets/logo.png";
 import { FaCog, FaHistory } from "react-icons/fa";
 import { TiWeatherPartlySunny } from "react-icons/ti";
@@ -7,97 +8,158 @@ import { RxActivityLog } from "react-icons/rx";
 import { TbBrandGoogleAnalytics } from "react-icons/tb";
 import { BiSolidDashboard } from "react-icons/bi";
 import { IoLogOutSharp } from "react-icons/io5";
-import { signOut } from "firebase/auth"; // Import the signOut method
-import { auth } from "../firebase"; // Import the Firebase auth instance
-import { useNavigate } from "react-router-dom";
+import { signOut } from "firebase/auth";
+import { auth } from "../firebase";
 
-const Sidebar = ({ isOpen, toggleSidebar }) => {
+const Sidebar = ({ isOpen }) => {
   const navigate = useNavigate();
+  const location = useLocation(); // Get current URL path
 
   const handleLogout = async () => {
     try {
-      await signOut(auth); // Sign out the user
+      await signOut(auth);
       console.log("User logged out successfully");
-      navigate("/"); // Redirect to the login page
+      navigate("/");
     } catch (error) {
       console.error("Logout failed:", error);
     }
   };
 
   return (
-    <>
-      {/* Sidebar - Only visible when `isOpen` is true */}
-      <div
-        className={`fixed top-0 left-0 h-full bg-white text-black z-50
+    <div
+      className={`fixed top-0 left-0 h-full bg-white text-black z-50
         border-r border-gray-300 dark:border-gray-600 transition-all duration-300
         ${isOpen ? "w-64" : "w-0"} md:w-64`}
-      >
-        <div className="flex items-center space-x-2 mt-4 px-4">
-          <img src={logo} alt="P-Tubigan Logo" className="w-12 h-12" />
-          <h1
-            className={`${
-              isOpen ? "block" : "hidden"
-            } md:block text-2xl font-bold text-left italic`}
-          >
-            PATUBIGAN
-          </h1>
-        </div>
+    >
+      <div className="flex items-center space-x-2 mt-4 px-4">
+        <img src={logo} alt="P-Tubigan Logo" className="w-12 h-12" />
+        <h1
+          className={`${
+            isOpen ? "block" : "hidden"
+          } md:block text-2xl font-bold text-left italic`}
+        >
+          PATUBIGAN
+        </h1>
+      </div>
 
-        <ul className="flex flex-col mt-5 text-xl">
-          <li className="flex items-center py-3 px-2 space-x-4 hover:rounded hover:cursor-pointer hover:bg-blue-600 hover:text-white">
-            <BiSolidDashboard />
+      <ul className="flex flex-col mt-5 text-xl">
+        <li
+          className={`flex items-center py-3 px-2 space-x-4 rounded cursor-pointer transition-all
+            ${
+              location.pathname === "/homepage"
+                ? "bg-blue-600 text-white"
+                : "hover:bg-blue-600 hover:text-white"
+            }`}
+        >
+          <BiSolidDashboard />
+          <Link to="/homepage">
             <span className={`${isOpen ? "inline" : "hidden"} md:inline`}>
               Dashboard
             </span>
-          </li>
-          <li className="flex items-center py-3 px-2 space-x-4 hover:rounded hover:cursor-pointer hover:bg-blue-600 hover:text-white">
-            <TiWeatherPartlySunny />
+          </Link>
+        </li>
+        <li
+          className={`flex items-center py-3 px-2 space-x-4 rounded cursor-pointer transition-all
+            ${
+              location.pathname === "/weather"
+                ? "bg-blue-600 text-white"
+                : "hover:bg-blue-600 hover:text-white"
+            }`}
+        >
+          <TiWeatherPartlySunny />
+          <Link to="/weather">
             <span className={`${isOpen ? "inline" : "hidden"} md:inline`}>
               Weather
             </span>
-          </li>
-          <li className="flex items-center py-3 px-2 space-x-4 hover:rounded hover:cursor-pointer hover:bg-blue-600 hover:text-white">
-            <PiPlantBold />
+          </Link>
+        </li>
+        <li
+          className={`flex items-center py-3 px-2 space-x-4 rounded cursor-pointer transition-all
+            ${
+              location.pathname === "/plan"
+                ? "bg-blue-600 text-white"
+                : "hover:bg-blue-600 hover:text-white"
+            }`}
+        >
+          <PiPlantBold />
+          <Link to="/plan">
             <span className={`${isOpen ? "inline" : "hidden"} md:inline`}>
-              Planting plan
+              Planting Plan
             </span>
-          </li>
-          <li className="flex items-center py-3 px-2 space-x-4 hover:rounded hover:cursor-pointer hover:bg-blue-600 hover:text-white">
-            <RxActivityLog />
+          </Link>
+        </li>
+        <li
+          className={`flex items-center py-3 px-2 space-x-4 rounded cursor-pointer transition-all
+            ${
+              location.pathname === "/activity"
+                ? "bg-blue-600 text-white"
+                : "hover:bg-blue-600 hover:text-white"
+            }`}
+        >
+          <RxActivityLog />
+          <Link to="/activity">
             <span className={`${isOpen ? "inline" : "hidden"} md:inline`}>
               Activity
             </span>
-          </li>
-          <li className="flex items-center py-3 px-2 space-x-4 hover:rounded hover:cursor-pointer hover:bg-blue-600 hover:text-white">
-            <FaHistory />
+          </Link>
+        </li>
+        <li
+          className={`flex items-center py-3 px-2 space-x-4 rounded cursor-pointer transition-all
+            ${
+              location.pathname === "/plantinghistory"
+                ? "bg-blue-600 text-white"
+                : "hover:bg-blue-600 hover:text-white"
+            }`}
+        >
+          <FaHistory />
+          <Link to="/plantinghistory">
             <span className={`${isOpen ? "inline" : "hidden"} md:inline`}>
-              Planting history
+              Planting History
             </span>
-          </li>
-          <li className="flex items-center py-3 px-2 space-x-4 hover:rounded hover:cursor-pointer hover:bg-blue-600 hover:text-white">
-            <TbBrandGoogleAnalytics />
+          </Link>
+        </li>
+        <li
+          className={`flex items-center py-3 px-2 space-x-4 rounded cursor-pointer transition-all
+            ${
+              location.pathname === "/analytics"
+                ? "bg-blue-600 text-white"
+                : "hover:bg-blue-600 hover:text-white"
+            }`}
+        >
+          <TbBrandGoogleAnalytics />
+          <Link to="/analytics">
             <span className={`${isOpen ? "inline" : "hidden"} md:inline`}>
               Analytics
             </span>
-          </li>
-          <li className="flex items-center py-3 px-2 space-x-4 hover:rounded hover:cursor-pointer hover:bg-blue-600 hover:text-white">
-            <FaCog />
+          </Link>
+        </li>
+        <li
+          className={`flex items-center py-3 px-2 space-x-4 rounded cursor-pointer transition-all
+            ${
+              location.pathname === "/setting"
+                ? "bg-blue-600 text-white"
+                : "hover:bg-blue-600 hover:text-white"
+            }`}
+        >
+          <FaCog />
+          <Link to="/setting">
             <span className={`${isOpen ? "inline" : "hidden"} md:inline`}>
               Settings
             </span>
-          </li>
-          {/* Logout Button */}
-          <li
-              
-            className="flex items-center py-3 px-2 space-x-4 hover:rounded hover:cursor-pointer"
-            onClick={handleLogout}
-          >
-            <IoLogOutSharp />
-            <span className={`${isOpen ? "inline" : "hidden"} md:inline`}>Logout</span>
-          </li>
-        </ul>
-      </div>
-    </>
+          </Link>
+        </li>
+        {/* Logout Button */}
+        <li
+          className="flex items-center py-3 px-2 space-x-4 rounded cursor-pointer hover:bg-red-600 hover:text-white"
+          onClick={handleLogout}
+        >
+          <IoLogOutSharp />
+          <span className={`${isOpen ? "inline" : "hidden"} md:inline`}>
+            Logout
+          </span>
+        </li>
+      </ul>
+    </div>
   );
 };
 
