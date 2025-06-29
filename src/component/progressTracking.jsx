@@ -3,9 +3,10 @@ import { getFirestore, doc, getDoc } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { db } from "../firebase";
 
-const ProgressTracking = () => {
+const ProgressTracking = ({ setCurrentStage }) => {
   const [progressData, setProgressData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentStage, setCurrentStageLocal] = useState("");
 
   useEffect(() => {
     const fetchFarmingPlan = async () => {
@@ -24,15 +25,12 @@ const ProgressTracking = () => {
         const farmingPlanSnap = await getDoc(farmingPlanRef);
         if (farmingPlanSnap.exists()) {
           const data = farmingPlanSnap.data();
-
           const { startDate, firstApplication, secondApplication } = data;
 
-          // Convert dates to Date objects
           const start = new Date(startDate);
           const firstFert = new Date(firstApplication);
           const secondFert = new Date(secondApplication);
 
-          // Define farming stages
           const stages = [
             { name: "Vegetative Stage", date: start },
             { name: "First Fertilizer Application", date: firstFert },
@@ -43,6 +41,21 @@ const ProgressTracking = () => {
           ];
 
           setProgressData(stages);
+
+          // Determine the current stage (excluding fertilizer applications)
+          const currentDate = new Date();
+          const stageNames = ["Vegetative Stage", "Reproductive Stage", "Ripening Stage", "Harvest"];
+          let current = "Not Started";
+
+          for (let i = stages.length - 1; i >= 0; i--) {
+            if (currentDate >= stages[i].date && stageNames.includes(stages[i].name)) {
+              current = stages[i].name;
+              break;
+            }
+          }
+
+          setCurrentStageLocal(current);
+          if (setCurrentStage) setCurrentStage(current);
         } else {
           console.error("No farming plan found!");
         }
@@ -53,40 +66,40 @@ const ProgressTracking = () => {
     };
 
     fetchFarmingPlan();
-  }, []);
-
-  const currentDate = new Date();
+  }, [setCurrentStage]);
 
   return (
     <div className="p-2">
-      <h1 className="text-xl font-bold mb-4">Rice Farming Progress</h1>
+  <h1 className="text-xl font-bold mb-4">Rice Farming Progress</h1>
 
-      {loading ? (
-        <p>Loading...</p>
-      ) : (
-        <div className="space-y-4">
-          {progressData.map((stage, index) => {
-            const isCompleted = currentDate >= stage.date;
+  {loading ? (
+    <p>Loading...</p>
+  ) : progressData.length > 0 ? (
+    <div className="space-y-4">
+      {progressData.map((stage, index) => {
+        const isCompleted = new Date() >= stage.date;
 
-            return (
-              <div key={index} className="flex items-center  space-x-4">
-                {/* Progress Indicator */}
-                <div
-                  className={`w-3 h-3 rounded-full ${
-                    isCompleted ? "bg-green-500" : "bg-gray-400"
-                  }`}
-                ></div>
-
-                {/* Stage Name */}
-                <p className={`text-sm ${isCompleted ? "text-green-600" : "text-gray-600"}`}>
-                  {stage.name} - {stage.date.toDateString()}
-                </p>
-              </div>
-            );
-          })}
-        </div>
-      )}
+        return (
+          <div key={index} className="flex items-center space-x-4">
+            <div
+              className={`w-3 h-3 rounded-full ${
+                isCompleted ? "bg-green-500" : "bg-gray-400"
+              }`}
+            ></div>
+            <p className={`text-sm ${isCompleted ? "text-green-600" : "text-gray-600"}`}>
+              {stage.name} - {stage.date.toDateString()}
+            </p>
+          </div>
+        );
+      })}
     </div>
+  ) : (
+    <p className="text-gray-500 font-semibold text-center">
+      No farming plan found. <br /> <span className="text-green-600">Go to Planting Plan to create one.</span>
+    </p>
+  )}
+</div>
+
   );
 };
 

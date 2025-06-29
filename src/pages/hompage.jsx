@@ -9,8 +9,10 @@ import { doc, getDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import { getAuth } from "firebase/auth";
 import ProgressTracking from "../component/progressTracking";
-import NotificationBadge from "../component/notificationbadge";
-
+import HarvestModal from "../component/harvestmodal"; // ✅ Import HarvestModal component
+import { generateToken } from "../firebase";
+import logo from "../assets/logo.png";
+import Esp32 from "../component/Esp32"; // update path as needed
 
 
 const HomePage = () => {
@@ -18,12 +20,29 @@ const HomePage = () => {
   const [isOpen, setIsOpen] = useState(false);
   const LOCATION = "Compostela"; // Location for weather data
   const { currentWeather, weeklyForecast, error } = useWeatherData(LOCATION); // Use the custom hook
+  const [currentStage, setCurrentStage] = useState("Loading...");
+  const [isModalOpen, setIsModalOpen] = useState(false); // ✅ Modal state
+  const [isGateOpen, setIsGateOpen] = useState('Closed');
+
 
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
   };
-  
 
+  const handleOpenGate = async () => {
+    const token = await generateToken();
+    if (token) {
+      // Show notification after permission is granted
+      new Notification("PATUBIGAN Irrigation System", {
+        body: "The gate has been opened successfully!",
+        icon: logo, 
+      });
+    }
+    setIsGateOpen("Open");
+  };
+
+  
+ 
   const [daysSinceStart, setDaysSinceStart] = useState(null);
   const [riceVariety, setRiceVariety] = useState("");
 
@@ -56,10 +75,17 @@ const HomePage = () => {
       }
     };
 
+
+   
+
+
     fetchStartDate();
   }, []);
 
+
+
   return (
+    
     <div className="min-h-screen bg-gray-100">
       {/* Navbar */}
       <Navbar toggleSidebar={toggleSidebar} />
@@ -69,46 +95,64 @@ const HomePage = () => {
 
       {/* Main Content */}
       <main className="p-2 lg:ml-64 bg-gray-300">
-        <div className="flex w-full items-center h-max px-2 mb-2">
-          <h1 className=" text-xl sm:text-3xl md:text-xl lg:text-[30px] flex-grow sm:pl-8">
-            Dashboard
-          </h1> 
-          <Link to="/notification">
-            <NotificationBadge />
-          </Link>
-          
-        </div>
-        <div
-          className="flex flex-col w-full h-[170px] md:h-[350px] bg-cover bg-no-repeat bg-center rounded-md mb-2"
-          style={{
-            backgroundImage: `url(${ricebg})`,
-            backgroundSize: "100% 100%", // Stretches the image to fit the div
-          }}
-        >
-          {/* Top section */}
-          <div className="flex justify-between w-full h-max pl-2 ">
-            <span className="text-sm sm:text-2xl md:text-2xl text-white">
-              Rice variety: {riceVariety}
-            </span>
+       {/* Header Section */}
+<div className="flex w-full items-center h-max px-2 mb-2">
+  <h1 className="text-xl sm:text-3xl md:text-2xl lg:text-[30px] flex-grow sm:pl-8">
+    Dashboard
+  </h1>
+  <Link to="/notification">
+    <IoIosNotifications className="text-2xl cursor-pointer" />
+   </Link>
+</div>
 
-          </div>
+{/* Main Banner Section */}
+<div
+  className="flex flex-col w-full min-h-[170px] md:min-h-[350px] bg-cover bg-no-repeat bg-center rounded-md mb-2 p-4 sm:p-6"
+  style={{
+    backgroundImage: `url(${ricebg})`,
+    backgroundSize: "cover", // Ensure image scales properly
+  }}
+>
+  {/* Top section */}
+  <div className="flex justify-between items-center w-full">
+    <span className="text-sm sm:text-lg md:text-xl lg:text-2xl text-white">
+      Rice variety: {riceVariety}
+    </span>
+  </div>
 
-          {/* Bottom section */}
-          <div className="flex flex-col items-center w-full sm:h-[200px] md:h-[250px] lg:h-[300px]">
-            <h1 className="text-4xl sm:text-6xl md:text-8xl text-white">DAY {daysSinceStart !== null ? daysSinceStart : "..."}</h1>
-            <h2 className="text-white text-sm md:text-5xl pt-5">Vegetative Stage</h2>
-          </div>
-          <div className="flex flex-col items-center justify-center w-full pt-4  md:pb-2 ">
-            <h2 className="text-white text-sm md:text-3xl">Irrigation Status: Close</h2>
-            <button className="bg-green-500 text-white font-semibold px-4 py-1 rounded-md">
-              <h1 className="md:text-xl text-sm">Open Gate</h1>
-            </button>
-          </div>
-        </div>
-        <div className="flex flex-col md:flex-row w-full gap-4">
+  {/* Bottom section */}
+  <div className="flex flex-col items-center w-full min-h-[110px] sm:min-h-[200px] md:min-h-[250px] lg:min-h-[300px] pt-2">
+    <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl text-white font-bold">
+      {daysSinceStart !== null ? `DAY ${daysSinceStart}` : "No Farming Plan"}
+    </h1>
+    {currentStage === "Harvest" ? (
+      <button
+      onClick={() => setIsModalOpen(true)} // ✅ Open modal
+      className="bg-green-600 text-white font-semibold px-6 py-3 rounded-lg text-lg sm:text-xl md:text-2xl mt-4 shadow-md hover:bg-green-700 transition duration-300">
+        Harvest
+      </button>
+    ) : (
+      <h2 className="text-white text-xl sm:text-lg md:text-2xl lg:text-5xl pt-5 text-center">
+        {currentStage}
+      </h2>
+    )}
+  </div>
+
+  {/* Irrigation Status */}
+  <div className="flex flex-col items-center justify-center w-full pt-4 md:pb-2">
+    <h2 className="text-white text-sm sm:text-lg md:text-2xl lg:text-3xl">
+      Irrigation Status: <span className="font-bold">{isGateOpen}</span>
+    </h2>
+    
+  </div>
+</div>
+
+{/* Responsive Flex Layout */}
+<div className="flex flex-col md:flex-row w-full gap-4">
+
   {/* Progress Tracking Section */}
   <div className="w-full md:w-1/4 bg-gray-200 rounded-md p-4 h-[400px]">
-    <ProgressTracking/>
+    <ProgressTracking setCurrentStage={setCurrentStage} />
   </div>
 
   {/* Weather Section */}
@@ -175,24 +219,18 @@ const HomePage = () => {
             )}
   </div>
 
-  {/* Soil Moisture & Water Level */}
-  <div className="w-full md:w-1/4 flex flex-col gap-4">
-    <div className="bg-slate-900 text-white rounded-md p-4 flex items-center justify-between">
-      <h1 className="text-xl">Water Level</h1>
-      <div className="flex items-center">
-        <span className="text-3xl font-bold">80</span>
-        <span className="ml-1 text-lg">cm</span>
-      </div>
-    </div>
-    <div className="bg-slate-900 text-white rounded-md p-4 flex items-center justify-between">
-      <h1 className="text-xl">Soil Moisture</h1>
-      <div className="flex items-center">
-        <span className="text-3xl font-bold">50</span>
-        <span className="ml-1 text-lg">%</span>
-      </div>
-    </div>
-  </div>
+       {/* Soil Moisture & Water Level */}
+<div className="w-full md:w-1/4 flex flex-col bg-gray-700 rounded-md justify-center items-center">
+<h2 className="text-3xl font-bold text-center text-white mb-8 pt-3">
+    Sensor Readings
+  </h2>
+ <Esp32 />
+
 </div>
+
+
+</div>
+<HarvestModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
       </main>
     </div>
   );

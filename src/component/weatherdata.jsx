@@ -1,131 +1,144 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { db, auth } from "../firebase";
-import {
-  collection,
-  addDoc,
-  query,
-  orderBy,
-  onSnapshot,
-  getDocs,
-  limit,
-} from "firebase/firestore";
-import { onAuthStateChanged } from "firebase/auth";
+import { collection, addDoc } from "firebase/firestore";
 
 const useWeatherData = (location) => {
   const [currentWeather, setCurrentWeather] = useState(null);
   const [weeklyForecast, setWeeklyForecast] = useState([]);
   const [hourlyForecast, setHourlyForecast] = useState([]);
-  const [weatherHistory, setWeatherHistory] = useState([]);
   const [error, setError] = useState(null);
-  const [user, setUser] = useState(null);
 
   const API_KEY = import.meta.env.VITE_WEATHER_API_KEY || "default_fallback_key";
   const API_URL_CURRENT = "https://api.openweathermap.org/data/2.5/weather";
   const API_URL_FORECAST = "https://api.openweathermap.org/data/2.5/forecast";
 
-  // Listen for auth state changes
-  useEffect(() => {
-    const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-    });
+  const fetchWeatherData = async () => {
+    try {
+      const now = new Date();
+      const hour = now.getHours();
+      const minutes = now.getMinutes();
+      const minuteKey = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}-${hour}:${minutes}`;
 
-    return () => unsubscribeAuth();
-  }, []);
-
-  useEffect(() => {
-    if (!location || !user) return;
-
-    const fetchWeatherData = async () => {
-      try {
-        // Fetch current weather
-        const currentResponse = await axios.get(API_URL_CURRENT, {
-          params: { q: location, units: "metric", appid: API_KEY },
-        });
-
-        const newWeatherData = {
-          temp: currentResponse.data.main.temp,
-          description: currentResponse.data.weather[0].description,
-          humidity: currentResponse.data.main.humidity,
-          timestamp: new Date().toISOString(),
-        };
-
-        setCurrentWeather({
-          ...newWeatherData,
-          icon: `https://openweathermap.org/img/wn/${currentResponse.data.weather[0].icon}@2x.png`,
-        });
-
-        // Save to Firestore only if there's a significant change
-        const userWeatherRef = collection(db, "users", user.uid, "weatherUpdates");
-        const q = query(userWeatherRef, orderBy("timestamp", "desc"), limit(1));
-        const querySnapshot = await getDocs(q);
-        const lastWeatherData = querySnapshot.docs.length > 0 ? querySnapshot.docs[0].data() : null;
-
-        if (!lastWeatherData || lastWeatherData.description !== newWeatherData.description || lastWeatherData.temp !== newWeatherData.temp) {
-          await addDoc(userWeatherRef, newWeatherData);
-        }
-
-        // Fetch forecast data
-        const forecastResponse = await axios.get(API_URL_FORECAST, {
-          params: { q: location, units: "metric", appid: API_KEY },
-        });
-
-        // Extract hourly forecast (next 12 hours)
-        const hourlyData = forecastResponse.data.list.slice(0, 12).map((entry) => ({
-          time: new Date(entry.dt_txt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-          temp: entry.main.temp,
-        }));
-        setHourlyForecast(hourlyData);
-
-        // Extract weekly forecast (7 days)
-        const weeklyData = [];
-        const uniqueDays = new Set();
-        for (const entry of forecastResponse.data.list) {
-          const date = new Date(entry.dt_txt).toDateString();
-          if (!uniqueDays.has(date)) {
-            uniqueDays.add(date);
-            weeklyData.push({
-              date,
-              temp: entry.main.temp,
-              description: entry.weather[0].description,
-              icon: `https://openweathermap.org/img/wn/${entry.weather[0].icon}@2x.png`,
-            });
-            if (weeklyData.length === 8) break;
-          }
-        }
-        setWeeklyForecast(weeklyData);
-
-        setError(null);
-      } catch (err) {
-        setError("Unable to fetch weather data. Please try again later.");
-        setCurrentWeather(null);
-        setWeeklyForecast([]);
-        setHourlyForecast([]);
-      }
-    };
-
-    // Fetch weather history in real-time
-    const fetchWeatherHistoryRealTime = () => {
-      if (!user) return () => {}; // Return an empty cleanup function if no user
-
-      const userWeatherRef = collection(db, "users", user.uid, "weatherUpdates");
-      const q = query(userWeatherRef, orderBy("timestamp", "desc"));
-
-      const unsubscribe = onSnapshot(q, (querySnapshot) => {
-        const historyData = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-        setWeatherHistory(historyData);
+      // Fetch current weather
+      const currentResponse = await axios.get(API_URL_CURRENT, {
+        params: {
+          q: location,
+          units: "metric",
+          appid: API_KEY,
+        },
       });
 
-      return unsubscribe;
-    };
+      // Extract and process weather info
+      const temp = currentResponse.data.main.temp;
+      const humidity = currentResponse.data.main.humidity;
+      const description = currentResponse.data.weather[0].description.toLowerCase();
+      const icon = currentResponse.data.weather[0].icon;
 
-    fetchWeatherData();
-    const unsubscribeHistory = fetchWeatherHistoryRealTime();
+      let advisoryText = "weather looks normal.Visit the page to monitor your farm.";
+      if (description.includes("heavy rain") || description.includes("thunderstorm")) {
+        advisoryText = "Close the irrigation gate to avoid overwatering.";
+      } else if (temp >= 38 && humidity >= 40) {
+        advisoryText = "Open the irrigation gate to avoid drought.";
+      }
 
-    return () => unsubscribeHistory();
-  }, [location, user]);
+      const weatherInfo = {
+        temp,
+        description,
+        humidity,
+        icon: `https://openweathermap.org/img/wn/${icon}@2x.png`,
+        timestamp: now.toISOString(),
+        notified: false,
+        advisory: advisoryText, // Include in Firestore
+      };
 
-  return { currentWeather, weeklyForecast, hourlyForecast, weatherHistory, error };
+      setCurrentWeather(weatherInfo);
+
+      // Push notification trigger (8:00 or 18:00)
+      const isTargetTime = (hour === 8 || hour === 13) && minutes === 27;
+      const lastNotified = localStorage.getItem("lastWeatherNotification");
+      const user = auth.currentUser;
+
+      if (isTargetTime && lastNotified !== minuteKey && user) {
+        weatherInfo.notified = true;
+
+        const userWeatherRef = collection(db, "users", user.uid, "weatherUpdates");
+        await addDoc(userWeatherRef, weatherInfo);
+
+        if (Notification.permission === "granted") {
+          const notificationBody = `Temp: ${temp}°C\n Humidity: ${humidity}%\n ${description}\n ${advisoryText}`;
+          new Notification("🌦 Weather Advisory", {
+            body: notificationBody,
+            icon: weatherInfo.icon,
+          });
+        }
+
+        localStorage.setItem("lastWeatherNotification", minuteKey);
+      }
+
+      // Forecast: hourly
+      const forecastResponse = await axios.get(API_URL_FORECAST, {
+        params: { q: location, units: "metric", appid: API_KEY },
+      });
+
+      const hourlyData = forecastResponse.data.list.slice(0, 12).map((entry) => ({
+        time: new Date(entry.dt_txt).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+        temp: entry.main.temp,
+      }));
+      setHourlyForecast(hourlyData);
+
+      // Forecast: daily
+      const weeklyData = [];
+      const uniqueDays = new Set();
+      for (const entry of forecastResponse.data.list) {
+        const date = new Date(entry.dt_txt).toDateString();
+        if (!uniqueDays.has(date)) {
+          uniqueDays.add(date);
+          weeklyData.push({
+            date,
+            temp: entry.main.temp,
+            description: entry.weather[0].description,
+            icon: `https://openweathermap.org/img/wn/${entry.weather[0].icon}@2x.png`,
+          });
+          if (weeklyData.length === 7) break;
+        }
+      }
+      setWeeklyForecast(weeklyData);
+      setError(null);
+    } catch (err) {
+      console.error("Weather fetch error:", err);
+      setError("Unable to fetch weather data.");
+      setCurrentWeather(null);
+      setWeeklyForecast([]);
+      setHourlyForecast([]);
+    }
+  };
+
+  useEffect(() => {
+    if (!location) return;
+
+    if (Notification.permission !== "granted") {
+      Notification.requestPermission();
+    }
+
+    fetchWeatherData(); // Initial fetch
+
+    const interval = setInterval(() => {
+      fetchWeatherData();
+    }, 60000); // every minute
+
+    return () => clearInterval(interval);
+  }, [location]);
+
+  return {
+    currentWeather,
+    weeklyForecast,
+    hourlyForecast,
+    error,
+  };
 };
 
 export default useWeatherData;

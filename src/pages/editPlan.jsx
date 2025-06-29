@@ -14,12 +14,13 @@ function EditFarmingPlan() {
   const [formData, setFormData] = useState({
     riceVariety: "",
     plantingMethod: "",
+    hectareCoverage: "",
     startDate: { year: "", month: "", day: "" },
     firstApplication: { year: "", month: "", day: "" },
     secondApplication: { year: "", month: "", day: "" },
   });
 
-  const years = Array.from({ length: 10 }, (_, i) => new Date().getFullYear() + i);
+  const years = Array.from({ length: 11 }, (_, i) => new Date().getFullYear() - 1 + i);
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
   const days = Array.from({ length: 31 }, (_, i) => i + 1);
 
@@ -40,6 +41,7 @@ function EditFarmingPlan() {
           const data = docSnap.data();
           setFormData({
             riceVariety: data.riceVariety || "",
+            hectareCoverage: data.hectareCoverage || "",
             plantingMethod: data.plantingMethod || "",
             startDate: parseDate(data.startDate),
             firstApplication: parseDate(data.firstApplication),
@@ -87,6 +89,7 @@ function EditFarmingPlan() {
       const docRef = doc(db, `users/${userId}/farmingPlans`, id);
       await updateDoc(docRef, {
         riceVariety: formData.riceVariety,
+        hectareCoverage: formData.hectareCoverage,
         plantingMethod: formData.plantingMethod,
         startDate: `${formData.startDate.year}-${formData.startDate.month}-${formData.startDate.day}`,
         firstApplication: `${formData.firstApplication.year}-${formData.firstApplication.month}-${formData.firstApplication.day}`,
@@ -115,6 +118,17 @@ function EditFarmingPlan() {
                   type="text"
                   name="riceVariety"
                   value={formData.riceVariety}
+                  onChange={handleChange}
+                  className="mt-1 block w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700"> Hectare Coverage (ha):</label>
+                <input
+                  type="text"
+                  name="hectareCoverage"
+                  value={formData.hectareCoverage}
                   onChange={handleChange}
                   className="mt-1 block w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md"
                   required

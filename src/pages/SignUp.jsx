@@ -1,8 +1,10 @@
 import { Link, useNavigate } from "react-router-dom";
 import React, { useState } from "react";
-import { auth } from "../firebase"; // Import Firebase auth instance
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { FaEye, FaEyeSlash} from "react-icons/fa";
+import { auth } from "../firebase";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { db } from "../firebase";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 
 const SignupForm = () => {
   const [formData, setFormData] = useState({
@@ -37,10 +39,34 @@ const SignupForm = () => {
     }
 
     try {
-      // Create a new user with Firebase Authentication
-      await createUserWithEmailAndPassword(auth, formData.email, formData.password);
-      console.log("User registered successfully:", formData.name);
-      navigate("/"); // Redirect to Sign In page after successful registration
+      // Check if username already exists
+      const usernameRef = doc(db, "users", formData.name);
+      const docSnap = await getDoc(usernameRef);
+
+      if (docSnap.exists()) {
+        setError("Username is already taken. Please choose another.");
+        return;
+      }
+
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        formData.email,
+        formData.password
+      );
+
+      // Update display name in Firebase Auth
+      await updateProfile(userCredential.user, {
+        displayName: formData.name,
+      });
+
+      // Save user data in Firestore using name as doc ID
+      await setDoc(doc(db, "users", formData.name), {
+        uid: userCredential.user.uid,
+        email: formData.email,
+        createdAt: new Date(),
+      });
+
+      navigate("/");
     } catch (error) {
       setError("Failed to create an account. Please try again.");
       console.error("Signup Error:", error);

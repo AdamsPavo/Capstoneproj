@@ -21,7 +21,7 @@ function FarmingPlan() {
     day: "",
   });
 
-  const years = Array.from({ length: 10 }, (_, i) => new Date().getFullYear() + i);
+  const years = Array.from({ length: 11 }, (_, i) => new Date().getFullYear() - 1 + i);
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
   const days = Array.from({ length: 31 }, (_, i) => i + 1);
 
@@ -69,6 +69,7 @@ function FarmingPlan() {
     try {
       await setDoc(farmingPlanRef, {
         riceVariety: e.target.riceVariety.value,
+        hectareCoverage: e.target.HectareCoverage.value,
         plantingMethod,
         startDate: `${startDate.year}-${startDate.month}-${startDate.day}`,
         firstApplication: `${firstApplication.year}-${firstApplication.month}-${firstApplication.day}`,
@@ -110,21 +111,42 @@ function FarmingPlan() {
                 />
               </div>
 
-              {/* Planting Method */}
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">
-                  Planting Method
-                </label>
-                <select
-                  value={plantingMethod}
-                  onChange={(e) => setPlantingMethod(e.target.value)}
-                  className="mt-1 block w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md"
-                >
-                  <option value="">Select a method</option>
-                  <option value="direct">Direct</option>
-                  <option value="transplanting">Transplanting</option>
-                </select>
-              </div>
+                        {/* Hectare Coverage */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700">
+              Hectare Coverage (ha):
+            </label>
+            <input
+              type="number"
+              name="HectareCoverage"
+              className="mt-1 block w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md"
+              placeholder="Enter Hectare Coverage"
+              min="0.01"
+              step="0.01"
+              required
+            />
+          </div>
+
+
+            {/* Planting Method */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700">
+              Planting Method:
+            </label>
+            <select
+              value={plantingMethod}
+              onChange={(e) => setPlantingMethod(e.target.value)}
+              className="mt-1 block w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md"
+              required
+            >
+              <option value="" disabled selected>Select a planting method</option>
+              <option value="direct">Direct</option>
+              <option value="transplanting">Transplanting</option>
+            </select>
+          </div>
+
+
+
 
               {/* Planting Start Date */}
               <div className="mb-4">
