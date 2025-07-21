@@ -43,49 +43,49 @@ const Sidebar = ({ isOpen }) => {
       </div>
 
       <ul className="flex flex-col mt-5 text-xl">
-  <li className={`${location.pathname === "/homepage" ? "bg-blue-600 text-white" : "hover:bg-blue-600 hover:text-white"}`}>
+  <li className={`${location.pathname === "/homepage" ? "bg-green-600 text-white" : "hover:bg-green-600 hover:text-white"}`}>
     <Link to="/homepage" className="flex items-center py-3 px-2 space-x-4 rounded cursor-pointer w-full">
       <BiSolidDashboard />
       <span className={`${isOpen ? "inline" : "hidden"} md:inline`}>Dashboard</span>
     </Link>
   </li>
 
-  <li className={`${location.pathname === "/weather" ? "bg-blue-600 text-white" : "hover:bg-blue-600 hover:text-white"}`}>
+  <li className={`${location.pathname === "/weather" ? "bg-green-600 text-white" : "hover:bg-green-600 hover:text-white"}`}>
     <Link to="/weather" className="flex items-center py-3 px-2 space-x-4 rounded cursor-pointer w-full">
       <TiWeatherPartlySunny />
       <span className={`${isOpen ? "inline" : "hidden"} md:inline`}>Weather</span>
     </Link>
   </li>
 
-  <li className={`${location.pathname === "/plan" ? "bg-blue-600 text-white" : "hover:bg-blue-600 hover:text-white"}`}>
+  <li className={`${location.pathname === "/plan" ? "bg-green-600 text-white" : "hover:bg-green-600 hover:text-white"}`}>
     <Link to="/plan" className="flex items-center py-3 px-2 space-x-4 rounded cursor-pointer w-full">
       <PiPlantBold />
       <span className={`${isOpen ? "inline" : "hidden"} md:inline`}>Planting Plan</span>
     </Link>
   </li>
 
-  <li className={`${location.pathname === "/activity" ? "bg-blue-600 text-white" : "hover:bg-blue-600 hover:text-white"}`}>
+  <li className={`${location.pathname === "/activity" ? "bg-green-600 text-white" : "hover:bg-green-600 hover:text-white"}`}>
     <Link to="/activity" className="flex items-center py-3 px-2 space-x-4 rounded cursor-pointer w-full">
       <RxActivityLog />
-      <span className={`${isOpen ? "inline" : "hidden"} md:inline`}>Activity</span>
+      <span className={`${isOpen ? "inline" : "hidden"} md:inline`}>Activity Logs</span>
     </Link>
   </li>
 
-  <li className={`${location.pathname === "/plantinghistory" ? "bg-blue-600 text-white" : "hover:bg-blue-600 hover:text-white"}`}>
+  <li className={`${location.pathname === "/plantinghistory" ? "bg-green-600 text-white" : "hover:bg-green-600 hover:text-white"}`}>
     <Link to="/plantinghistory" className="flex items-center py-3 px-2 space-x-4 rounded cursor-pointer w-full">
       <FaHistory />
       <span className={`${isOpen ? "inline" : "hidden"} md:inline`}>Planting History</span>
     </Link>
   </li>
 
-  <li className={`${location.pathname === "/analytics" ? "bg-blue-600 text-white" : "hover:bg-blue-600 hover:text-white"}`}>
+  <li className={`${location.pathname === "/analytics" ? "bg-green-600 text-white" : "hover:bg-green-600 hover:text-white"}`}>
     <Link to="/analytics" className="flex items-center py-3 px-2 space-x-4 rounded cursor-pointer w-full">
       <TbBrandGoogleAnalytics />
       <span className={`${isOpen ? "inline" : "hidden"} md:inline`}>Analytics</span>
     </Link>
   </li>
 
-  <li className={`${location.pathname === "/setting" ? "bg-blue-600 text-white" : "hover:bg-blue-600 hover:text-white"}`}>
+  <li className={`${location.pathname === "/setting" ? "bg-green-600 text-white" : "hover:bg-green-600 hover:text-white"}`}>
     <Link to="/setting" className="flex items-center py-3 px-2 space-x-4 rounded cursor-pointer w-full">
       <FaCog />
       <span className={`${isOpen ? "inline" : "hidden"} md:inline`}>Settings</span>

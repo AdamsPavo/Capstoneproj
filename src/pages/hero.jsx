@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { auth } from "../firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import logo from "../assets/logo.png";
+import { Typewriter } from 'react-simple-typewriter';
 
 function Hero() {
   const navigate = useNavigate();
@@ -39,7 +40,8 @@ function Hero() {
 
   return (
     <>
-      <div className="flex flex-col md:flex-row items-center justify-center h-screen bg-white">
+      <div className="flex flex-col md:flex-row items-center justify-center min-h-screen bg-white px-4 md:px-8 lg:px-16 space-y-6 md:space-y-0 md:space-x-8">
+
         <div className="flex items-center justify-center md:w-1/2 mb-6 md:mb-0">
           <img
             src={logo}
@@ -48,20 +50,30 @@ function Hero() {
           />
         </div>
         <div className="text-center md:text-left md:w-1/2">
-          <h1 className="text-2xl md:text-7xl sm:text-6xl font-bold text-black mb-4">
+          <h1 className="text-2xl md:text-6xl sm:text-6xl font-bold text-black mb-4">
             Let’s revolutionize rice farming together
           </h1>
-          <p className="text-lg md:text-xl text-gray-600 mb-8">
-            Stay smart, save water, and grow better.
-          </p>
+        <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-green-700 font-semibold mt-2 sm:mt-4 pb-2 sm:pb-4 text-center sm:text-left">
+          <Typewriter
+            words={['Stay smart, save water, and grow better.']}
+            loop={false}
+            cursor
+            cursorStyle="|"
+            typeSpeed={60}
+            deleteSpeed={50}
+            delaySpeed={1000}
+          />
+        </p>
+
+
           <div className="flex flex-col items-center space-y-4 md:flex-row md:items-start md:space-y-0 md:space-x-4 md:justify-start">
             <Link to="/signin">
-              <button className="px-4 py-2 w-40 h-10 text-md font-semibold border border-blue-500 text-blue-500 rounded-2xl hover:bg-blue-200 md:px-8 md:py-3 md:w-40 md:h-auto md:text-base">
+              <button className="px-4 py-2 w-40 h-10 text-md font-semibold border border-green-600 text-green-600 rounded-2xl hover:bg-green-200 md:px-8 md:py-3 md:w-40 md:h-auto md:text-base">
                 Sign In
               </button>
             </Link>
             <Link to="/signup">
-              <button className="px-4 py-2 w-40 h-10 text-md font-semibold bg-blue-500 text-white rounded-2xl hover:bg-blue-600 md:px-8 md:py-3 md:w-40 md:h-auto md:text-base">
+              <button className="px-4 py-2 w-40 h-10 text-md font-semibold bg-green-600 text-white rounded-2xl hover:bg-green-800 md:px-8 md:py-3 md:w-40 md:h-auto md:text-base">
                 Sign Up
               </button>
             </Link>

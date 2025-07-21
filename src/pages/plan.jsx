@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { collection, getDocs, doc, deleteDoc } from "firebase/firestore";
-import { db, auth } from "../firebase"; // Import Firebase Auth
+import { db, auth } from "../firebase";
 import Navbar from "../component/navbar";
 import Sidebar from "../component/sidebar";
 
@@ -28,7 +28,7 @@ function FarmingPlanView() {
           setFarmingPlan(firstDoc.data());
           setDocId(firstDoc.id);
         } else {
-          navigate("/createplan"); // Redirect if no farming plan exists
+          navigate("/createplan");
         }
       } catch (error) {
         console.error("Error fetching farming plan:", error);
@@ -48,13 +48,12 @@ function FarmingPlanView() {
       await deleteDoc(doc(db, `users/${userId}/farmingPlans`, docId));
       console.log("Farming plan deleted successfully");
       setFarmingPlan(null);
-      navigate("/createplan"); // Redirect after deletion
+      navigate("/createplan");
     } catch (error) {
       console.error("Error deleting farming plan:", error);
     }
   };
 
-  // Prevents errors if farmingPlan is null
   if (!farmingPlan) {
     return (
       <div className="text-center mt-10">
@@ -62,6 +61,13 @@ function FarmingPlanView() {
       </div>
     );
   }
+
+  const harvestDays =
+    farmingPlan.plantingMethod === "direct"
+      ? 100
+      : farmingPlan.plantingMethod === "transplanting"
+      ? 110
+      : null;
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -84,7 +90,9 @@ function FarmingPlanView() {
             </div>
 
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700"> Hectare Coverage (ha):</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Hectare Coverage (ha):
+              </label>
               <input
                 type="text"
                 value={farmingPlan?.hectareCoverage || ""}
@@ -103,6 +111,13 @@ function FarmingPlanView() {
               />
             </div>
 
+            {harvestDays && (
+              <p className="text-sm text-gray-700 mb-4">
+                Days to Harvest:{" "}
+                <span className="font-semibold text-yellow-500">{harvestDays} days</span>
+              </p>
+            )}
+
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700">Planting Start Date:</label>
               <input
@@ -114,7 +129,9 @@ function FarmingPlanView() {
             </div>
 
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">First Application of Fertilizer Date:</label>
+              <label className="block text-sm font-medium text-gray-700">
+                First Application of Fertilizer Date:
+              </label>
               <input
                 type="text"
                 value={farmingPlan?.firstApplication || ""}
@@ -124,7 +141,9 @@ function FarmingPlanView() {
             </div>
 
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">Second Application Fertilizer Date:</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Second Application Fertilizer Date:
+              </label>
               <input
                 type="text"
                 value={farmingPlan?.secondApplication || ""}

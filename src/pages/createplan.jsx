@@ -128,7 +128,7 @@ function FarmingPlan() {
           </div>
 
 
-            {/* Planting Method */}
+          {/* Planting Method */}
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700">
               Planting Method:
@@ -139,10 +139,19 @@ function FarmingPlan() {
               className="mt-1 block w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md"
               required
             >
-              <option value="" disabled selected>Select a planting method</option>
+              <option value="" disabled>Select a planting method</option>
               <option value="direct">Direct</option>
               <option value="transplanting">Transplanting</option>
             </select>
+
+            {plantingMethod && (
+              <p className="mt-2 text-sm text-gray-700">
+                Days to Harvest:{" "}
+                <span className="font-semibold text-yellow-500">
+                  {plantingMethod === "direct" ? 100 : plantingMethod === "transplanting" ? 110 : "N/A"} days
+                </span>
+              </p>
+            )}
           </div>
 
 

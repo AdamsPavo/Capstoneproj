@@ -35,11 +35,11 @@ const useWeatherData = (location) => {
       const description = currentResponse.data.weather[0].description.toLowerCase();
       const icon = currentResponse.data.weather[0].icon;
 
-      let advisoryText = "weather looks normal.Visit the page to monitor your farm.";
+      let advisoryText = "weather looks normal.Visit the website to monitor your farm.";
       if (description.includes("heavy rain") || description.includes("thunderstorm")) {
-        advisoryText = "Close the irrigation gate to avoid overwatering.";
+        advisoryText = " Heavy rain expected! Turn off irrigation to prevent waterlogging and crop damage.";
       } else if (temp >= 38 && humidity >= 40) {
-        advisoryText = "Open the irrigation gate to avoid drought.";
+        advisoryText = "Hot weather alert! Activate irrigation to prevent drought stress on your crops.";
       }
 
       const weatherInfo = {
@@ -54,8 +54,8 @@ const useWeatherData = (location) => {
 
       setCurrentWeather(weatherInfo);
 
-      // Push notification trigger (8:00 or 18:00)
-      const isTargetTime = (hour === 8 || hour === 13) && minutes === 27;
+      // Push notification trigger (8:00 or 12:29)
+      const isTargetTime = (hour === 8 || hour === 18) && minutes === 30;
       const lastNotified = localStorage.getItem("lastWeatherNotification");
       const user = auth.currentUser;
 

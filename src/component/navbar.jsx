@@ -12,7 +12,7 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="bg-blue-500 p-1 flex justify-between items-center lg:hidden">
+      <nav className="bg-green-600 p-1 flex justify-between items-center lg:hidden">
 
   
       <img src={logo} alt="P-Tubigan Logo" className="w-12 h-12" />

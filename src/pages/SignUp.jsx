@@ -66,7 +66,7 @@ const SignupForm = () => {
         createdAt: new Date(),
       });
 
-      navigate("/");
+      navigate("/signin");
     } catch (error) {
       setError("Failed to create an account. Please try again.");
       console.error("Signup Error:", error);
@@ -161,7 +161,7 @@ const SignupForm = () => {
 
         <button
           type="submit"
-          className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring focus:ring-indigo-300"
+          className="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 focus:outline-none focus:ring focus:ring-indigo-300"
         >
           Sign Up
         </button>

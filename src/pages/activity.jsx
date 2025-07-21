@@ -2,7 +2,14 @@ import React, { useState, useEffect } from "react";
 import Navbar from "../component/navbar";
 import Sidebar from "../component/sidebar";
 import { getAuth } from "firebase/auth";
-import { collection, getDocs, query, orderBy } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  query,
+  orderBy,
+  deleteDoc,
+  doc,
+} from "firebase/firestore";
 import { db } from "../firebase";
 
 const Activity = () => {
@@ -44,6 +51,36 @@ const Activity = () => {
     fetchGateActions();
   }, []);
 
+  const handleClearLogs = async () => {
+    const auth = getAuth();
+    const user = auth.currentUser;
+
+    if (!user) {
+      alert("⚠️ User not authenticated.");
+      return;
+    }
+
+    const confirmClear = window.confirm("Are you sure you want to clear all activity logs?");
+    if (!confirmClear) return;
+
+    try {
+      const actionsRef = collection(db, "users", user.uid, "gateActions");
+      const q = query(actionsRef);
+      const snapshot = await getDocs(q);
+
+      const deletePromises = snapshot.docs.map((docSnap) =>
+        deleteDoc(doc(db, "users", user.uid, "gateActions", docSnap.id))
+      );
+
+      await Promise.all(deletePromises);
+      setActions([]); // Clear UI
+      alert("✅ Logs cleared successfully.");
+    } catch (error) {
+      console.error("Error clearing logs:", error);
+      alert("❌ Failed to clear logs.");
+    }
+  };
+
   const formatTriggeredBy = (trigger) => {
     switch (trigger) {
       case "manual":
@@ -65,7 +102,19 @@ const Activity = () => {
 
       {/* Main Content */}
       <main className="p-4 lg:ml-64 bg-gray-300 min-h-screen">
-        <h1 className="text-2xl font-bold mb-4">Irrigation Activity Logs</h1>
+       <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-4 w-full">
+        <h1 className="text-2xl font-bold">
+          Irrigation Activity Logs
+        </h1>
+        <span
+          onClick={handleClearLogs}
+          className="text-gray-500 font-semibold hover:text-red-700 cursor-pointer sm:ml-auto mt-2 sm:mt-0"
+        >
+          Clear Activity Logs
+        </span>
+      </div>
+
+
 
         {loading ? (
           <p className="text-gray-600">Loading…</p>

@@ -7,6 +7,7 @@ import { db } from "../firebase";
 import logo from "../assets/logo.png";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
+
 function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -118,9 +119,9 @@ function SignIn() {
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute inset-y-0 right-3 pt-2 flex items-center text-gray-500 focus:outline-none"
+              className="absolute inset-y-0 right-3 pt-8 flex items-center text-gray-500 focus:outline-none"
             >
-              {showPassword ? <FaEyeSlash /> : <FaEye />}
+              {showPassword ? <FaEyeSlash/> : <FaEye />}
             </button>
           </div>
 
@@ -140,7 +141,7 @@ function SignIn() {
           <div className="flex items-center justify-center">
             <button
               type="submit"
-              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               Sign In
             </button>
